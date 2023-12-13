@@ -12,68 +12,28 @@
 
 #include "get_next_line.h"
 
-// char    *get_next_line(int fd)
-// {
-//     int i;
-//     int n;
-//     char*   buf;
-//     char*   str;
-//     static char*   stock;
-
-//     n = 1;
-//     buf = malloc(sizeof(char) * BUFFER_SIZE);
-//     if (buf == NULL)
-//         return (NULL);
-//     if (fd < 0 || BUFFER_SIZE <= 0)
-//         return (NULL);
-//     while (n != 0)
-//     {
-//         i = 0;
-//         n = read(fd, buf, BUFFER_SIZE);
-//         if (n == 0)
-//             return (NULL);
-//         stock = ft_strjoin(stock, buf);
-//         while (stock[i])
-//         {
-//             if (stock[i] == '\n')
-//             {
-//                 str = ft_result(stock);
-//                 stock = ft_resetstock(stock);
-//                 free(buf);
-//                 return (str);
-//             }
-//             i++;
-//         }
-//     }
-//     return (stock);
-// }
-
-
-int ft_is_empty(char* buf)
+char    *ft_strized(char *stock)
 {
-    if (!buf)
-        return (-1);
-    else
-        return (0);
-}
-
-int ft_check_backslash(char *buf)
-{
-    size_t  i;
+    int i;
+    char    *result;
 
     i = 0;
-    while (buf[i])
+    while (stock[i] != '\n')
+        i++;
+    result = malloc(sizeof(char) * i + 1);
+    i = 0;
+    while (stock[i] != '\n')
     {
-        if (buf[i] == '\n')
-            return (0);
+        result[i] = stock[i];
         i++;
     }
-    return (-1);
+    result[i] = '\n';
+    return (result);
 }
 
 char    *get_next_line(int fd)
 {
-    char    *buf;
+    char    *fill;
     char    *str;
     static char *stock;
     int     n;
@@ -81,19 +41,26 @@ char    *get_next_line(int fd)
     n = 1;
     while (n != 0)
     {
-        buf = calloc(sizeof(char), BUFFER_SIZE + 1);
-        n = read(fd, buf, BUFFER_SIZE);
-        buf[n] = '\0';
-        stock = calloc(sizeof(char), ft_strlen(buf));
-        stock = ft_strjoin(stock, buf);
-        if (ft_check_backslash(buf) == 0)
+        if (!fill)
         {
-            str = ft_result(stock);
-            stock = ft_resetstock(stock);
-            return (str);
+            fill = malloc(sizeof(char) * BUFFER_SIZE + 1);
+            fill[BUFFER_SIZE] = '\0';
         }
+        n = read(fd, fill, BUFFER_SIZE);
+        fill[BUFFER_SIZE] = '\0';
+        if (n == -1)
+            return (NULL);
+        if (stock)
+            stock = ft_strjoin(stock, fill);
+        else
+            stock = ft_strdup(fill);
+        if (ft_strchr(stock, '\n'))
+            break;
     }
-    return (NULL);
+    str = ft_strized(stock);
+    stock = ft_reset_stock(stock);
+   // free (fill); invalid pointer
+    return (str);
 }
 int main(void)
 {
@@ -101,13 +68,16 @@ int main(void)
     int n;
     char    *str;
 
-    n = 6;
+    n = 1;
+    i = open ("txt.txt", O_RDONLY);
     while (n > 0)
     {
-        i = open ("txt.txt", O_RDONLY);
         str = get_next_line(i);
         printf("%s", str);
         n--;
     }
+    free (str);
     return (0);
 }
+// PROBLEME : NE PEUT PAS LIRE LE '\0' DE LA DERNIERE LIGNE
+// NE MARCHE PAS AVEC DES BUFFER_SIZE DE 5 (PEUT ETRE MOINS)

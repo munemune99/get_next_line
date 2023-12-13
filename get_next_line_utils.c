@@ -12,53 +12,64 @@
 
 #include "get_next_line.h"
 
-char    *ft_result(char* stock)
+char	*ft_reset_stock(char *stock)
 {
-    size_t  i;
-    char *new;
+	int	i;
+	int	y;
+	char *result;
+	int test;
 
-    while (stock[i] != '\n')
-        i++;
-    new = calloc(sizeof(char), i + 1);
-    i = 0;
-    while (stock[i] != '\n')
-    {
-        new[i] = stock[i];
-        i++;
-    }
-    new[i] = '\n';
-    return (new);
+	i = 0;
+	while (stock[i] != '\n')
+		i++;
+	i++;
+	while (stock[i] != '\0')
+	{
+		i++;
+		y++;
+	}
+	result = malloc(sizeof(char) * y + 1);
+	result[y] = '\0';
+	i -= y;
+	y = 0;
+	while (result[y] != '\0')
+	{
+		result[y] = stock[i];
+		i++;
+		y++;
+	}
+	result[y] = '\0';
+	//free(stock);
+	return (result);
 }
 
-char    *ft_resetstock(char* stock)
+char	*ft_strchr(const char *s, int c)
 {
-    size_t  i;
-    size_t  y;
-    char    *new;
+	char	*pt;
+	size_t	i;
 
-    i = 0;
-    while (stock[i] != '\n')
-        i++;
-    i++;
-    while (stock[i])
-    {
-        i++;
-        y++;
-    }
-    new = malloc (sizeof(char) * i + 1);
-    i -= y;
-    y = 0;
-    while (stock[i])
-    {
-        new[y] = stock[i];
-        i++;
-        y++;
-    }
-    new[y] = '\0';
-    return (new);
+	i = 0;
+	while (c > 127)
+		c = c - 128;
+	while (s[i] != '\0')
+	{
+		if (s[i] == c)
+		{
+			pt = (char *)&s[i];
+			return (pt);
+		}
+		else
+			i++;
+	}
+	if (c == '\0')
+	{
+		pt = (char *)&s[i];
+		return (pt);
+	}
+	return (NULL);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char *s2)
 {
 	size_t	i;
 	size_t	y;
@@ -82,6 +93,8 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	}
 	while (y < ft_strlen(s2) + 1)
 		str[i++] = s2[y++];
+	//free(s2);
+	//free(s1);
 	return (str);
 }
 char	*ft_strdup(const char *s)
