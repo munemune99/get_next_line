@@ -18,9 +18,14 @@ char    *ft_strized(char *stock)
     char    *result;
 
     i = 0;
+    if (ft_cut(stock) == -1)
+        {
+            result = ft_strdup(stock);
+            return (result);
+        }
     while (stock[i] != '\n')
         i++;
-    result = malloc(sizeof(char) * i + 1);
+    result = malloc(sizeof(char) * i + 2);
     i = 0;
     while (stock[i] != '\n')
     {
@@ -28,39 +33,43 @@ char    *ft_strized(char *stock)
         i++;
     }
     result[i] = '\n';
+    result[i + 1] = 0;
     return (result);
 }
 
 char    *get_next_line(int fd)
 {
-    char    *fill;
-    char    *str;
-    static char *stock;
-    int     n;
+    static char stock[BUFFER_SIZE + 1];
+    char        fill[BUFFER_SIZE + 1];
+    char        *str;
+    char        *stash;
+    int         n;
 
+    if (fd < 0 || buffer_size <= 0 || read(fd, 0, 0) < 0)
+        return (NULL);
     n = 1;
-    while (n != 0)
+    stash = ft_strdup(stock);
+    if (stash == NULL)
+        return (NULL); 
+    while (n != 0 && ft_cut(stash) == -1)
     {
-        if (!fill)
-        {
-            fill = malloc(sizeof(char) * BUFFER_SIZE + 1);
-            fill[BUFFER_SIZE] = '\0';
-        }
         n = read(fd, fill, BUFFER_SIZE);
-        fill[BUFFER_SIZE] = '\0';
+        fill[n] = 0;
         if (n == -1)
-            return (NULL);
-        if (stock)
-            stock = ft_strjoin(stock, fill);
-        else
-            stock = ft_strdup(fill);
-        if (ft_strchr(stock, '\n'))
+            return (free(stash), NULL);
+        stash = ft_strjoin(stash, fill);
+        if (ft_cut(stash) != -1)
             break;
     }
-    str = ft_strized(stock);
-    stock = ft_reset_stock(stock);
-   // free (fill); invalid pointer
-    return (str);
+    str = ft_strized(stash);
+    if ((ft_cut(stash) != -1) && n != 0)
+        ft_memmove(stock, stash + ft_cut(stash) + 1, ft_strlen(stash) - ft_cut(stash));
+    else
+        stock[0] = '\0';
+   if (str[0] == '\0')
+        return (free(stash), free(str), NULL);
+    else
+        return (free(stash), str);
 }
 int main(void)
 {
@@ -68,15 +77,17 @@ int main(void)
     int n;
     char    *str;
 
-    n = 1;
+    n = 3;
     i = open ("txt.txt", O_RDONLY);
-    while (n > 0)
+    str = get_next_line(i);
+    while (str)
     {
-        str = get_next_line(i);
         printf("%s", str);
+        free(str);
+        str = get_next_line(i);
         n--;
     }
-    free (str);
+    close(i);
     return (0);
 }
 // PROBLEME : NE PEUT PAS LIRE LE '\0' DE LA DERNIERE LIGNE

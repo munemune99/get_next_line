@@ -12,61 +12,45 @@
 
 #include "get_next_line.h"
 
-char	*ft_reset_stock(char *stock)
+void	*ft_memmove(void *dest, const void *source, size_t n)
 {
-	int	i;
-	int	y;
-	char *result;
-	int test;
-
-	i = 0;
-	while (stock[i] != '\n')
-		i++;
-	i++;
-	while (stock[i] != '\0')
-	{
-		i++;
-		y++;
-	}
-	result = malloc(sizeof(char) * y + 1);
-	result[y] = '\0';
-	i -= y;
-	y = 0;
-	while (result[y] != '\0')
-	{
-		result[y] = stock[i];
-		i++;
-		y++;
-	}
-	result[y] = '\0';
-	//free(stock);
-	return (result);
-}
-
-char	*ft_strchr(const char *s, int c)
-{
-	char	*pt;
+	char	*s1;
+	char	*s2;
 	size_t	i;
 
+	s1 = (char *)dest;
+	s2 = (char *)source;
 	i = 0;
-	while (c > 127)
-		c = c - 128;
-	while (s[i] != '\0')
+	if (s1 == s2 || n == 0)
+		return (s1);
+	if (s1 > s2)
 	{
-		if (s[i] == c)
+		while (n-- > 0)
+			s1[n] = s2[n];
+	}
+	else
+	{
+		while (i < n)
 		{
-			pt = (char *)&s[i];
-			return (pt);
-		}
-		else
+			s1[i] = s2[i];
 			i++;
+		}
 	}
-	if (c == '\0')
+	return (s1);
+}
+
+int	ft_cut(const char *s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i] != '\n')
 	{
-		pt = (char *)&s[i];
-		return (pt);
+		if (s[i] == '\0')
+			return (-1);
+		i++;
 	}
-	return (NULL);
+	return (i);
 }
 
 char	*ft_strjoin(char *s1, char *s2)
@@ -93,8 +77,7 @@ char	*ft_strjoin(char *s1, char *s2)
 	}
 	while (y < ft_strlen(s2) + 1)
 		str[i++] = s2[y++];
-	//free(s2);
-	//free(s1);
+	free(s1);
 	return (str);
 }
 char	*ft_strdup(const char *s)
